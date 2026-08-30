@@ -15,7 +15,6 @@ import {
   Phone,
   Sparkles
 } from 'lucide-react';
-
 export default function TrainerDashboard() {
   const [loading, setLoading] = useState(true);
   const [trainer, setTrainer] = useState(null);
@@ -26,8 +25,6 @@ export default function TrainerDashboard() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [notification, setNotification] = useState({ text: '', type: '' });
-
-  // Plan editing form
   const [planForm, setPlanForm] = useState({
     calories: 0,
     protein: 0,
@@ -36,7 +33,6 @@ export default function TrainerDashboard() {
     meals: '',
     workout_plan: ''
   });
-
   const fetchDashboard = async () => {
     try {
       setLoading(true);
@@ -51,17 +47,13 @@ export default function TrainerDashboard() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchDashboard();
   }, []);
-
   const showNotice = (text, type = 'success') => {
     setNotification({ text, type });
     setTimeout(() => setNotification({ text: '', type: '' }), 4000);
   };
-
-  // Open Plan Modal
   const openPlanModal = (cust) => {
     setSelectedCustomer(cust);
     setPlanForm({
@@ -74,8 +66,6 @@ export default function TrainerDashboard() {
     });
     setIsPlanModalOpen(true);
   };
-
-  // Save Diet & Workout Plans
   const handleSavePlans = async (e) => {
     e.preventDefault();
     try {
@@ -89,8 +79,6 @@ export default function TrainerDashboard() {
       showNotice(err.response?.data?.message || 'Failed to update plans', 'error');
     }
   };
-
-  // Open Chat with Client
   const openChatModal = async (cust) => {
     setSelectedCustomer(cust);
     setIsChatModalOpen(true);
@@ -103,12 +91,9 @@ export default function TrainerDashboard() {
       showNotice('Failed to load message history', 'error');
     }
   };
-
-  // Send Message to Client
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-
     try {
       const res = await trainerAPI.sendMessage(selectedCustomer._id, { message: newMessage });
       if (res.data.success) {
@@ -119,10 +104,8 @@ export default function TrainerDashboard() {
       showNotice('Failed to send message', 'error');
     }
   };
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Notification */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 space-y-8 min-h-screen">
       {notification.text && (
         <div className={`p-4 rounded-xl text-sm font-semibold flex items-center justify-between shadow-md ${
           notification.type === 'error'
@@ -133,8 +116,6 @@ export default function TrainerDashboard() {
           <button onClick={() => setNotification({ text: '', type: '' })} className="font-bold text-xs uppercase">Dismiss</button>
         </div>
       )}
-
-      {/* Trainer Profile Overview Banner */}
       <div className="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 border border-slate-800 shadow-xl text-white relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-5">
@@ -152,7 +133,6 @@ export default function TrainerDashboard() {
               </p>
             </div>
           </div>
-
           <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
             <div className="text-left">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Assigned Clients</span>
@@ -165,8 +145,6 @@ export default function TrainerDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Assigned Clients Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
@@ -177,8 +155,6 @@ export default function TrainerDashboard() {
           </p>
         </div>
       </div>
-
-      {/* Clients Grid */}
       {customers.length === 0 ? (
         <div className="p-12 text-center rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
@@ -193,7 +169,6 @@ export default function TrainerDashboard() {
               className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition flex flex-col justify-between"
             >
               <div>
-                {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase">{cust.name}</h3>
@@ -206,14 +181,11 @@ export default function TrainerDashboard() {
                     {cust.membership}
                   </span>
                 </div>
-
-                {/* Diet & Macros Overview */}
                 <div className="mt-5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-slate-700 dark:text-slate-300 uppercase">Diet Plan:</span>
                     <span className="font-semibold text-yellow-500">{cust.diet_plan}</span>
                   </div>
-
                   {cust.diet_plan !== 'None' && (
                     <div className="grid grid-cols-4 gap-1 text-center pt-2 border-t border-slate-200 dark:border-slate-700">
                       <div className="p-1 rounded bg-white dark:bg-slate-800">
@@ -234,7 +206,6 @@ export default function TrainerDashboard() {
                       </div>
                     </div>
                   )}
-
                   {cust.meals && (
                     <div className="pt-2">
                       <span className="text-[11px] font-bold text-slate-500 uppercase block mb-1">Meal Suggestions:</span>
@@ -242,8 +213,6 @@ export default function TrainerDashboard() {
                     </div>
                   )}
                 </div>
-
-                {/* Workout Routine Preview */}
                 <div className="mt-4 text-xs">
                   <span className="font-bold text-slate-700 dark:text-slate-300 uppercase block mb-1">Workout Routine:</span>
                   <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-2 bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg">
@@ -251,8 +220,6 @@ export default function TrainerDashboard() {
                   </p>
                 </div>
               </div>
-
-              {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-2 mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={() => openPlanModal(cust)}
@@ -261,7 +228,6 @@ export default function TrainerDashboard() {
                   <Edit className="w-3.5 h-3.5" />
                   <span>Edit Plan</span>
                 </button>
-
                 <button
                   onClick={() => openChatModal(cust)}
                   className="py-2.5 px-3 rounded-xl bg-yellow-400 text-black hover:bg-yellow-300 font-extrabold text-xs uppercase tracking-wider transition flex items-center justify-center gap-1.5 shadow-sm"
@@ -274,8 +240,6 @@ export default function TrainerDashboard() {
           ))}
         </div>
       )}
-
-      {/* MODAL 1: EDIT DIET & WORKOUT PLANS */}
       <Modal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} title={`Customize Program: ${selectedCustomer?.name}`}>
         <form onSubmit={handleSavePlans} className="space-y-4 text-xs">
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3">
@@ -318,7 +282,6 @@ export default function TrainerDashboard() {
                 />
               </div>
             </div>
-
             <div>
               <label className="block text-[11px] font-semibold text-slate-400 mb-1">Meal Suggestions & Nutrition Rules</label>
               <textarea
@@ -330,7 +293,6 @@ export default function TrainerDashboard() {
               />
             </div>
           </div>
-
           <div>
             <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Workout Regimen & Split</label>
             <textarea
@@ -341,7 +303,6 @@ export default function TrainerDashboard() {
               className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -359,11 +320,8 @@ export default function TrainerDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 2: LIVE CHAT WITH CLIENT */}
       <Modal isOpen={isChatModalOpen} onClose={() => setIsChatModalOpen(false)} title={`Direct Messaging: ${selectedCustomer?.name}`}>
         <div className="flex flex-col h-[450px]">
-          {/* Messages Container */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
             {messages.length === 0 ? (
               <div className="h-full flex items-center justify-center text-center text-slate-400 text-xs">
@@ -389,8 +347,6 @@ export default function TrainerDashboard() {
               })
             )}
           </div>
-
-          {/* Input Bar */}
           <form onSubmit={handleSendMessage} className="flex gap-2 mt-4">
             <input
               type="text"

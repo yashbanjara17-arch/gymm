@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { customerAPI } from '../../services/api';
+import { customerAPI, invoiceAPI } from '../../services/api';
 import StatsCard from '../../components/StatsCard';
 import Modal from '../../components/Modal';
 import {
@@ -20,7 +20,6 @@ import {
   Clock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-
 export default function CustomerDashboard() {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
@@ -29,7 +28,6 @@ export default function CustomerDashboard() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [notification, setNotification] = useState({ text: '', type: '' });
-
   const fetchDashboard = async () => {
     try {
       setLoading(true);
@@ -44,17 +42,13 @@ export default function CustomerDashboard() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchDashboard();
   }, []);
-
   const showNotice = (text, type = 'success') => {
     setNotification({ text, type });
     setTimeout(() => setNotification({ text: '', type: '' }), 4000);
   };
-
-  // Mark Daily Attendance
   const handleMarkAttendance = async () => {
     try {
       const res = await customerAPI.markAttendance();
@@ -67,8 +61,6 @@ export default function CustomerDashboard() {
       showNotice(err.response?.data?.message || 'Failed to mark attendance', 'error');
     }
   };
-
-  // Self Payment
   const handleMakePayment = async (e) => {
     e.preventDefault();
     try {
@@ -84,12 +76,9 @@ export default function CustomerDashboard() {
       showNotice(err.response?.data?.message || 'Failed to process payment', 'error');
     }
   };
-
-  // Send Message to Trainer
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-
     try {
       const res = await customerAPI.sendMessage({ message: newMessage });
       if (res.data.success) {
@@ -100,12 +89,9 @@ export default function CustomerDashboard() {
       showNotice(err.response?.data?.message || 'Failed to send message', 'error');
     }
   };
-
   const customer = dashboardData?.customer;
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Alert banner */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 space-y-8 min-h-screen">
       {notification.text && (
         <div className={`p-4 rounded-xl text-sm font-semibold flex items-center justify-between shadow-md ${
           notification.type === 'error'
@@ -116,8 +102,6 @@ export default function CustomerDashboard() {
           <button onClick={() => setNotification({ text: '', type: '' })} className="font-bold text-xs uppercase">Dismiss</button>
         </div>
       )}
-
-      {/* Hero Welcome Card */}
       <div className="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 border border-slate-800 shadow-xl text-white relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-5">
@@ -135,21 +119,24 @@ export default function CustomerDashboard() {
               </p>
             </div>
           </div>
-
           <div className="flex flex-wrap items-center gap-3">
-            {/* Download Invoice */}
             {customer && (
-              <a
-                href={`/api/invoices/${customer._id}`}
-                download
-                className="px-5 py-2.5 rounded-xl bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider hover:bg-slate-700 transition flex items-center gap-2 border border-slate-700"
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await invoiceAPI.downloadInvoice(customer._id, customer.name);
+                    showNotice('Invoice downloaded successfully!');
+                  } catch (err) {
+                    showNotice('Failed to download invoice', 'error');
+                  }
+                }}
+                className="px-5 py-2.5 rounded-xl bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider hover:bg-slate-700 transition flex items-center gap-2 border border-slate-700 hover:scale-105"
               >
                 <FileText className="w-4 h-4 text-yellow-400" />
                 <span>Download Invoice</span>
-              </a>
+              </button>
             )}
-
-            {/* Daily Attendance Check-in */}
             {dashboardData?.hasMarkedToday ? (
               <div className="px-5 py-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs uppercase tracking-wider flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
@@ -167,8 +154,6 @@ export default function CustomerDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Financial & Attendance Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatsCard
           title="Plan Membership Fee"
@@ -177,7 +162,6 @@ export default function CustomerDashboard() {
           icon={IndianRupee}
           color="yellow"
         />
-
         <StatsCard
           title="Amount Cleared"
           value={`₹${(customer?.amount_paid || 0).toLocaleString('en-IN')}`}
@@ -185,7 +169,6 @@ export default function CustomerDashboard() {
           icon={CheckCircle}
           color="green"
         />
-
         <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Balance Pending Due</p>
@@ -206,7 +189,6 @@ export default function CustomerDashboard() {
             </button>
           )}
         </div>
-
         <StatsCard
           title="Total Days Attended"
           value={`${dashboardData?.totalPresentDays || 0} Days`}
@@ -215,12 +197,8 @@ export default function CustomerDashboard() {
           color="blue"
         />
       </div>
-
-      {/* Main Content: Diet & Workout + Trainer & Chat */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left 2 Cols: Nutrition & Workout Split */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Nutrition & Macros */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -233,7 +211,6 @@ export default function CustomerDashboard() {
                 </div>
               </div>
             </div>
-
             {customer?.diet_plan !== 'None' ? (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -242,26 +219,22 @@ export default function CustomerDashboard() {
                     <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{customer?.calories || 0}</h4>
                     <span className="text-[10px] text-slate-400">kcal / day</span>
                   </div>
-
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center">
                     <span className="text-xs font-bold uppercase text-slate-400">Protein</span>
                     <h4 className="text-2xl font-black text-yellow-400 mt-1">{customer?.protein || 0}g</h4>
                     <span className="text-[10px] text-slate-400">daily goal</span>
                   </div>
-
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center">
                     <span className="text-xs font-bold uppercase text-slate-400">Carbs</span>
                     <h4 className="text-2xl font-black text-cyan-400 mt-1">{customer?.carbs || 0}g</h4>
                     <span className="text-[10px] text-slate-400">daily goal</span>
                   </div>
-
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center">
                     <span className="text-xs font-bold uppercase text-slate-400">Fats</span>
                     <h4 className="text-2xl font-black text-purple-400 mt-1">{customer?.fats || 0}g</h4>
                     <span className="text-[10px] text-slate-400">daily goal</span>
                   </div>
                 </div>
-
                 {customer?.meals && (
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
                     <span className="font-bold text-slate-700 dark:text-slate-300 uppercase block mb-1.5">Coach Meal Notes & Structure:</span>
@@ -273,8 +246,6 @@ export default function CustomerDashboard() {
               <p className="text-slate-400 text-xs py-4">No custom diet plan assigned yet. Ask your coach to assign one!</p>
             )}
           </div>
-
-          {/* Workout Split */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-yellow-400/10 text-yellow-500">
@@ -285,7 +256,6 @@ export default function CustomerDashboard() {
                 <p className="text-xs font-semibold text-slate-400 uppercase">Customized by your coach</p>
               </div>
             </div>
-
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
               <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line font-medium">
                 {customer?.workout_plan || 'No specific workout routine assigned yet. Speak to your assigned coach for a tailored split.'}
@@ -293,10 +263,7 @@ export default function CustomerDashboard() {
             </div>
           </div>
         </div>
-
-        {/* Right 1 Col: Assigned Coach & Chat */}
         <div className="space-y-6">
-          {/* Coach Card */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Assigned Personal Coach</h3>
             {customer?.trainer_id ? (
@@ -319,15 +286,11 @@ export default function CustomerDashboard() {
               <p className="text-slate-400 text-xs italic">No trainer assigned currently. Contact gym admin to assign one.</p>
             )}
           </div>
-
-          {/* Coach Chat Box */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col h-[400px]">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-yellow-400" />
               <span>Direct Chat with Coach</span>
             </h3>
-
-            {/* Chat Thread */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
               {!customer?.trainer_id ? (
                 <div className="h-full flex items-center justify-center text-center text-slate-400 text-xs">
@@ -357,8 +320,6 @@ export default function CustomerDashboard() {
                 })
               )}
             </div>
-
-            {/* Message Input */}
             {customer?.trainer_id && (
               <form onSubmit={handleSendMessage} className="flex gap-2 mt-3">
                 <input
@@ -379,8 +340,6 @@ export default function CustomerDashboard() {
           </div>
         </div>
       </div>
-
-      {/* MODAL: CUSTOMER MAKE PAYMENT */}
       <Modal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} title="Pay Pending Membership Balance">
         <form onSubmit={handleMakePayment} className="space-y-4 text-xs">
           <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 flex justify-between items-center">
@@ -393,7 +352,6 @@ export default function CustomerDashboard() {
               <h4 className="text-xl font-black text-rose-500">₹{customer?.amount_due}</h4>
             </div>
           </div>
-
           <div>
             <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Payment Amount (₹) *</label>
             <input
@@ -407,7 +365,6 @@ export default function CustomerDashboard() {
               className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-base font-bold"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"

@@ -110,6 +110,7 @@ DEFAULT_ADMIN_PASSWORD=admin
 
 ### Frontend
 - **React.js (v18.3)**: Component-based reactive UI.
+- **Framer Motion (v12+)**: Smooth micro-interactions, layout transitions, spring physics, and animated dialogs.
 - **Vite (v6.0)**: Fast module bundler and dev server.
 - **Tailwind CSS (v3.4)**: Utility-first CSS framework supporting Dark/Light modes.
 - **React Router DOM (v6.28)**: Single Page Application routing and `<ProtectedRoute>` guards.

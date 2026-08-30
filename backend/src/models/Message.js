@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 const messageSchema = new mongoose.Schema({
   trainerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,5 +21,4 @@ const messageSchema = new mongoose.Schema({
     trim: true
   }
 }, { timestamps: true });
-
 export default mongoose.model('Message', messageSchema);

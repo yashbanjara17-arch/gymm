@@ -1,12 +1,9 @@
 import bcrypt from 'bcryptjs';
 import Admin from '../models/Admin.js';
-
 export const seedDatabase = async () => {
   try {
-    // Check if default admin exists
     const adminUsername = process.env.DEFAULT_ADMIN_USERNAME || 'admin';
     const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin';
-
     const adminExists = await Admin.findOne({ username: adminUsername });
     if (!adminExists) {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);

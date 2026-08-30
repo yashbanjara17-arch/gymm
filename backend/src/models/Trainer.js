@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-
 const trainerSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -34,10 +33,8 @@ const trainerSchema = new mongoose.Schema({
     default: 0
   }
 }, { timestamps: true });
-
 trainerSchema.methods.matchPassword = async function (enteredPassword) {
   if (this.password === enteredPassword) return true;
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
 export default mongoose.model('Trainer', trainerSchema);

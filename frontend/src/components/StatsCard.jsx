@@ -1,6 +1,6 @@
 import React from 'react';
-
-export default function StatsCard({ title, value, subtitle, icon: Icon, color = 'yellow', trend }) {
+import { motion } from 'framer-motion';
+export default function StatsCard({ title, value, subtitle, icon: Icon, color = 'yellow', index = 0 }) {
   const colorMap = {
     yellow: 'bg-yellow-500/10 text-yellow-500 dark:text-yellow-400 border-yellow-500/20',
     green: 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/20',
@@ -8,9 +8,14 @@ export default function StatsCard({ title, value, subtitle, icon: Icon, color = 
     purple: 'bg-purple-500/10 text-purple-500 dark:text-purple-400 border-purple-500/20',
     red: 'bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-500/20',
   };
-
   return (
-    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 shadow-sm hover:shadow-md transition duration-300">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 shadow-sm hover:shadow-xl hover:shadow-yellow-400/5 transition-shadow"
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{title}</p>
@@ -20,11 +25,14 @@ export default function StatsCard({ title, value, subtitle, icon: Icon, color = 
           )}
         </div>
         {Icon && (
-          <div className={`p-4 rounded-xl border ${colorMap[color] || colorMap.yellow}`}>
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className={`p-4 rounded-2xl border ${colorMap[color] || colorMap.yellow}`}
+          >
             <Icon className="w-6 h-6" />
-          </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

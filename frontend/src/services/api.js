@@ -1,13 +1,10 @@
 import axios from 'axios';
-
 const api = axios.create({
   baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   }
 });
-
-// Request interceptor to attach JWT token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('gym_token');
@@ -18,13 +15,10 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
-// Response interceptor for session expiry handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear token and user if unauthorized
       const currentPath = window.location.pathname;
       if (currentPath !== '/login' && currentPath !== '/') {
         localStorage.removeItem('gym_token');
@@ -35,16 +29,13 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 export default api;
-
 export const authAPI = {
   adminLogin: (data) => api.post('/auth/admin-login', data),
   trainerLogin: (data) => api.post('/auth/trainer-login', data),
   customerLogin: (data) => api.post('/auth/customer-login', data),
   getMe: () => api.get('/auth/me')
 };
-
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
   getCustomers: () => api.get('/admin/customers'),
@@ -60,21 +51,18 @@ export const adminAPI = {
   deleteTrainer: (id) => api.delete(`/admin/trainers/${id}`),
   recordGymSalaryPayment: (id, data) => api.post(`/admin/trainers/${id}/salary-payment`, data)
 };
-
 export const trainerAPI = {
   getDashboard: () => api.get('/trainer/dashboard'),
   updatePlans: (cid, data) => api.put(`/trainer/customers/${cid}/plans`, data),
   getMessages: (cid) => api.get(`/trainer/messages/${cid}`),
   sendMessage: (cid, data) => api.post(`/trainer/messages/${cid}`, data)
 };
-
 export const customerAPI = {
   getDashboard: () => api.get('/customer/dashboard'),
   markAttendance: () => api.post('/customer/mark-attendance'),
   sendMessage: (data) => api.post('/customer/send-message', data),
   makePayment: (data) => api.post('/customer/payment', data)
 };
-
 export const attendanceAPI = {
   getCustomersSummary: () => api.get('/attendance/customers'),
   getCustomerDetail: (cid) => api.get(`/attendance/customers/${cid}`),
@@ -83,7 +71,21 @@ export const attendanceAPI = {
   getTrainerDetail: (tid) => api.get(`/attendance/trainers/${tid}`),
   markTrainer: (tid, data) => api.post(`/attendance/trainers/${tid}`, data)
 };
-
 export const invoiceAPI = {
-  downloadInvoiceUrl: (cid) => `/api/invoices/${cid}`
+  downloadInvoice: async (cid, customerName = 'Member') => {
+    const res = await api.get(`/invoices/${cid}`, { responseType: 'blob' });
+    const blob = new Blob([res.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Invoice_${customerName.replace(/\s+/g, '_')}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
+  downloadInvoiceUrl: (cid) => {
+    const token = localStorage.getItem('gym_token');
+    return `/api/invoices/${cid}?token=${token}`;
+  }
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminAPI, attendanceAPI } from '../../services/api';
+import { adminAPI, attendanceAPI, invoiceAPI } from '../../services/api';
 import StatsCard from '../../components/StatsCard';
 import Modal from '../../components/Modal';
 import {
@@ -21,17 +21,14 @@ import {
   Award
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('customers'); // 'customers' | 'trainers' | 'attendance'
+  const [activeTab, setActiveTab] = useState('customers'); 
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [trainers, setTrainers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
-
-  // Modals state
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
@@ -40,13 +37,9 @@ export default function AdminDashboard() {
   const [isEditTrainerOpen, setIsEditTrainerOpen] = useState(false);
   const [isPaySalaryOpen, setIsPaySalaryOpen] = useState(false);
   const [isAttendanceDetailOpen, setIsAttendanceDetailOpen] = useState(false);
-
-  // Selected item states
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedTrainer, setSelectedTrainer] = useState(null);
   const [attendanceData, setAttendanceData] = useState({ user: null, type: 'customer', records: [] });
-
-  // Form states
   const [customerForm, setCustomerForm] = useState({
     name: '',
     phone: '',
@@ -62,7 +55,6 @@ export default function AdminDashboard() {
     workout_plan: '',
     trainer_id: ''
   });
-
   const [trainerForm, setTrainerForm] = useState({
     name: '',
     username: '',
@@ -71,12 +63,9 @@ export default function AdminDashboard() {
     specialization: 'General Fitness',
     salary: 0
   });
-
   const [paymentAmount, setPaymentAmount] = useState('');
   const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
   const [attendanceStatus, setAttendanceStatus] = useState('present');
-
-  // Load dashboard data
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -92,17 +81,13 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, []);
-
   const showMessage = (text, type = 'success') => {
     setMessage({ text, type });
     setTimeout(() => setMessage({ text: '', type: '' }), 5000);
   };
-
-  // Add Customer Handler
   const handleAddCustomer = async (e) => {
     e.preventDefault();
     try {
@@ -131,8 +116,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to create customer', 'error');
     }
   };
-
-  // Open Edit Customer Modal
   const openEditCustomer = (cust) => {
     setSelectedCustomer(cust);
     setCustomerForm({
@@ -152,8 +135,6 @@ export default function AdminDashboard() {
     });
     setIsEditCustomerOpen(true);
   };
-
-  // Update Customer Handler
   const handleUpdateCustomer = async (e) => {
     e.preventDefault();
     try {
@@ -170,8 +151,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to update customer', 'error');
     }
   };
-
-  // Delete Customer Handler
   const handleDeleteCustomer = async (id, name) => {
     if (!window.confirm(`Are you sure you want to permanently delete member "${name}"?`)) return;
     try {
@@ -184,8 +163,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to delete member', 'error');
     }
   };
-
-  // Record Payment
   const handleRecordPayment = async (e) => {
     e.preventDefault();
     try {
@@ -201,8 +178,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to record payment', 'error');
     }
   };
-
-  // Record Trainer Fee
   const handleRecordTrainerFee = async (e) => {
     e.preventDefault();
     try {
@@ -217,8 +192,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to record trainer fee', 'error');
     }
   };
-
-  // Add Trainer
   const handleAddTrainer = async (e) => {
     e.preventDefault();
     try {
@@ -240,8 +213,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to create trainer', 'error');
     }
   };
-
-  // Open Edit Trainer
   const openEditTrainer = (trn) => {
     setSelectedTrainer(trn);
     setTrainerForm({
@@ -254,8 +225,6 @@ export default function AdminDashboard() {
     });
     setIsEditTrainerOpen(true);
   };
-
-  // Update Trainer
   const handleUpdateTrainer = async (e) => {
     e.preventDefault();
     try {
@@ -269,8 +238,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to update trainer', 'error');
     }
   };
-
-  // Delete Trainer
   const handleDeleteTrainer = async (id, name) => {
     if (!window.confirm(`Are you sure you want to delete trainer "${name}"?`)) return;
     try {
@@ -283,8 +250,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to delete trainer', 'error');
     }
   };
-
-  // Pay Salary
   const handlePaySalary = async (e) => {
     e.preventDefault();
     try {
@@ -299,8 +264,6 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to record salary payment', 'error');
     }
   };
-
-  // View Attendance Detail
   const openAttendanceDetail = async (item, type) => {
     try {
       if (type === 'customer') {
@@ -328,8 +291,6 @@ export default function AdminDashboard() {
       showMessage('Failed to load attendance records', 'error');
     }
   };
-
-  // Mark attendance in modal
   const handleMarkAttendance = async (e) => {
     e.preventDefault();
     try {
@@ -351,24 +312,18 @@ export default function AdminDashboard() {
       showMessage(err.response?.data?.message || 'Failed to mark attendance', 'error');
     }
   };
-
-  // Filtered customers
   const filteredCustomers = customers.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.phone.includes(searchTerm) ||
     c.membership.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // Filtered trainers
   const filteredTrainers = trainers.filter(t =>
     t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.specialization.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Alert banner */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 space-y-8 min-h-screen">
       {message.text && (
         <div className={`p-4 rounded-xl text-sm font-semibold flex items-center justify-between shadow-md ${
           message.type === 'error'
@@ -379,8 +334,6 @@ export default function AdminDashboard() {
           <button onClick={() => setMessage({ text: '', type: '' })} className="font-bold text-xs uppercase ml-4">Dismiss</button>
         </div>
       )}
-
-      {/* Top Header & Quick Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
@@ -390,7 +343,6 @@ export default function AdminDashboard() {
             Complete management of members, coaching staff, billing & attendance
           </p>
         </div>
-
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setIsAddCustomerOpen(true)}
@@ -399,7 +351,6 @@ export default function AdminDashboard() {
             <UserPlus className="w-4 h-4" />
             <span>Add Member</span>
           </button>
-
           <button
             onClick={() => setIsAddTrainerOpen(true)}
             className="px-5 py-2.5 rounded-xl bg-slate-800 text-white font-extrabold text-xs uppercase tracking-wider hover:bg-slate-700 shadow-md hover:scale-105 transition-all flex items-center gap-2 border border-slate-700"
@@ -409,8 +360,6 @@ export default function AdminDashboard() {
           </button>
         </div>
       </div>
-
-      {/* Metrics Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatsCard
           title="Total Registered Members"
@@ -441,8 +390,6 @@ export default function AdminDashboard() {
           color="blue"
         />
       </div>
-
-      {/* Dashboard Main Tabs */}
       <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-slate-800 pb-1">
         <button
           onClick={() => setActiveTab('customers')}
@@ -455,7 +402,6 @@ export default function AdminDashboard() {
           <Users className="w-4 h-4" />
           <span>Members Management ({customers.length})</span>
         </button>
-
         <button
           onClick={() => setActiveTab('trainers')}
           className={`px-5 py-3 font-bold text-xs uppercase tracking-wider border-b-2 transition duration-200 flex items-center gap-2 ${
@@ -467,7 +413,6 @@ export default function AdminDashboard() {
           <Dumbbell className="w-4 h-4" />
           <span>Trainers & Coaches ({trainers.length})</span>
         </button>
-
         <button
           onClick={() => setActiveTab('attendance')}
           className={`px-5 py-3 font-bold text-xs uppercase tracking-wider border-b-2 transition duration-200 flex items-center gap-2 ${
@@ -480,8 +425,6 @@ export default function AdminDashboard() {
           <span>Attendance Center</span>
         </button>
       </div>
-
-      {/* Search Bar */}
       <div className="relative max-w-md">
         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
           <Search className="w-4 h-4" />
@@ -494,8 +437,6 @@ export default function AdminDashboard() {
           className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
         />
       </div>
-
-      {/* TAB 1: CUSTOMERS TABLE */}
       {activeTab === 'customers' && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
@@ -561,7 +502,6 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {/* Payment Button */}
                           <button
                             onClick={() => { setSelectedCustomer(cust); setPaymentAmount(''); setIsPaymentOpen(true); }}
                             className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition"
@@ -569,8 +509,6 @@ export default function AdminDashboard() {
                           >
                             <CreditCard className="w-4 h-4" />
                           </button>
-
-                          {/* Trainer Fee Button */}
                           <button
                             onClick={() => { setSelectedCustomer(cust); setPaymentAmount(''); setIsTrainerFeeOpen(true); }}
                             className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition"
@@ -578,18 +516,21 @@ export default function AdminDashboard() {
                           >
                             <Dumbbell className="w-4 h-4" />
                           </button>
-
-                          {/* Invoice PDF download */}
-                          <a
-                            href={`/api/invoices/${cust._id}`}
-                            download
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await invoiceAPI.downloadInvoice(cust._id, cust.name);
+                                showMessage(`Invoice for ${cust.name} downloaded!`);
+                              } catch (err) {
+                                showMessage('Failed to download invoice', 'error');
+                              }
+                            }}
                             className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white transition"
                             title="Download PDF Invoice"
                           >
                             <FileText className="w-4 h-4" />
-                          </a>
-
-                          {/* Edit Customer */}
+                          </button>
                           <button
                             onClick={() => openEditCustomer(cust)}
                             className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-yellow-400 hover:text-black transition"
@@ -597,8 +538,6 @@ export default function AdminDashboard() {
                           >
                             <Edit className="w-4 h-4" />
                           </button>
-
-                          {/* Attendance */}
                           <button
                             onClick={() => openAttendanceDetail(cust, 'customer')}
                             className="p-1.5 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white transition"
@@ -606,8 +545,6 @@ export default function AdminDashboard() {
                           >
                             <CalendarCheck className="w-4 h-4" />
                           </button>
-
-                          {/* Delete */}
                           <button
                             onClick={() => handleDeleteCustomer(cust._id, cust.name)}
                             className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition"
@@ -625,8 +562,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-
-      {/* TAB 2: TRAINERS TABLE */}
       {activeTab === 'trainers' && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
@@ -674,7 +609,6 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {/* Pay Salary */}
                           <button
                             onClick={() => { setSelectedTrainer(trn); setPaymentAmount(''); setIsPaySalaryOpen(true); }}
                             className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition"
@@ -682,8 +616,6 @@ export default function AdminDashboard() {
                           >
                             <CreditCard className="w-4 h-4" />
                           </button>
-
-                          {/* Attendance */}
                           <button
                             onClick={() => openAttendanceDetail(trn, 'trainer')}
                             className="p-1.5 rounded-lg bg-purple-500/10 text-purple-500 hover:bg-purple-500 hover:text-white transition"
@@ -691,8 +623,6 @@ export default function AdminDashboard() {
                           >
                             <CalendarCheck className="w-4 h-4" />
                           </button>
-
-                          {/* Edit Trainer */}
                           <button
                             onClick={() => openEditTrainer(trn)}
                             className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-yellow-400 hover:text-black transition"
@@ -700,8 +630,6 @@ export default function AdminDashboard() {
                           >
                             <Edit className="w-4 h-4" />
                           </button>
-
-                          {/* Delete */}
                           <button
                             onClick={() => handleDeleteTrainer(trn._id, trn.name)}
                             className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition"
@@ -719,11 +647,8 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-
-      {/* TAB 3: ATTENDANCE SUMMARY */}
       {activeTab === 'attendance' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Member Attendance */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
             <h3 className="text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <Users className="w-4 h-4 text-yellow-400" />
@@ -746,8 +671,6 @@ export default function AdminDashboard() {
               ))}
             </div>
           </div>
-
-          {/* Trainer Attendance */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
             <h3 className="text-base font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <Dumbbell className="w-4 h-4 text-yellow-400" />
@@ -772,8 +695,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-
-      {/* MODAL 1: ADD CUSTOMER */}
       <Modal isOpen={isAddCustomerOpen} onClose={() => setIsAddCustomerOpen(false)} title="Register New Member">
         <form onSubmit={handleAddCustomer} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -788,7 +709,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Phone Number (10 Digits) *</label>
               <input
@@ -802,7 +722,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Membership Plan *</label>
@@ -817,7 +736,6 @@ export default function AdminDashboard() {
                 <option value="Yearly">Yearly (₹8,000)</option>
               </select>
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Amount Paid (₹)</label>
               <input
@@ -828,7 +746,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Member Password *</label>
               <input
@@ -841,7 +758,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Assign Trainer</label>
@@ -858,7 +774,6 @@ export default function AdminDashboard() {
                 ))}
               </select>
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Diet Plan Type</label>
               <select
@@ -874,7 +789,6 @@ export default function AdminDashboard() {
               </select>
             </div>
           </div>
-
           {customerForm.diet_plan !== 'None' && (
             <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3">
               <h4 className="font-bold text-yellow-500 uppercase tracking-wider">Macros & Nutrition Targets</h4>
@@ -916,7 +830,6 @@ export default function AdminDashboard() {
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-[11px] font-semibold text-slate-400 mb-1">Meal Suggestions & Notes</label>
                 <textarea
@@ -929,7 +842,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
-
           <div>
             <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Workout Plan Routine</label>
             <textarea
@@ -940,7 +852,6 @@ export default function AdminDashboard() {
               className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -958,8 +869,6 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 2: EDIT CUSTOMER */}
       <Modal isOpen={isEditCustomerOpen} onClose={() => setIsEditCustomerOpen(false)} title={`Edit Member: ${selectedCustomer?.name}`}>
         <form onSubmit={handleUpdateCustomer} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -973,7 +882,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
               <input
@@ -986,7 +894,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Membership</label>
@@ -1001,7 +908,6 @@ export default function AdminDashboard() {
                 <option value="Yearly">Yearly (₹8,000)</option>
               </select>
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Total Paid (₹)</label>
               <input
@@ -1012,7 +918,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">New Password (optional)</label>
               <input
@@ -1024,7 +929,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Assigned Trainer</label>
@@ -1041,7 +945,6 @@ export default function AdminDashboard() {
                 ))}
               </select>
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Diet Plan Type</label>
               <select
@@ -1057,7 +960,6 @@ export default function AdminDashboard() {
               </select>
             </div>
           </div>
-
           {customerForm.diet_plan !== 'None' && (
             <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3">
               <h4 className="font-bold text-yellow-500 uppercase tracking-wider">Macros & Nutrition Targets</h4>
@@ -1099,7 +1001,6 @@ export default function AdminDashboard() {
                   />
                 </div>
               </div>
-
               <div>
                 <label className="block text-[11px] font-semibold text-slate-400 mb-1">Meal Suggestions & Notes</label>
                 <textarea
@@ -1111,7 +1012,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
-
           <div>
             <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Workout Plan Routine</label>
             <textarea
@@ -1121,7 +1021,6 @@ export default function AdminDashboard() {
               className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -1139,8 +1038,6 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 3: RECORD CUSTOMER PAYMENT */}
       <Modal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} title={`Record Payment: ${selectedCustomer?.name}`}>
         <form onSubmit={handleRecordPayment} className="space-y-4 text-xs">
           <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 flex justify-between items-center">
@@ -1153,7 +1050,6 @@ export default function AdminDashboard() {
               <h4 className="text-xl font-black text-rose-500">₹{selectedCustomer?.amount_due}</h4>
             </div>
           </div>
-
           <div>
             <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Additional Payment Amount (₹) *</label>
             <input
@@ -1167,7 +1063,6 @@ export default function AdminDashboard() {
               className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-base font-bold"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -1185,14 +1080,11 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 4: RECORD TRAINER FEE */}
       <Modal isOpen={isTrainerFeeOpen} onClose={() => setIsTrainerFeeOpen(false)} title={`Record Trainer Fee for ${selectedCustomer?.name}`}>
         <form onSubmit={handleRecordTrainerFee} className="space-y-4 text-xs">
           <p className="text-slate-500 dark:text-slate-400">
             Record direct personal trainer fee payment paid by member. Current trainer fee paid: ₹{selectedCustomer?.trainer_fee_paid || 0}
           </p>
-
           <div>
             <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Fee Amount (₹) *</label>
             <input
@@ -1205,7 +1097,6 @@ export default function AdminDashboard() {
               className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-base font-bold"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -1223,8 +1114,6 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 5: ADD TRAINER */}
       <Modal isOpen={isAddTrainerOpen} onClose={() => setIsAddTrainerOpen(false)} title="Register New Trainer">
         <form onSubmit={handleAddTrainer} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1239,7 +1128,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Username *</label>
               <input
@@ -1252,7 +1140,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Password *</label>
@@ -1265,7 +1152,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
               <input
@@ -1278,7 +1164,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Specialization</label>
@@ -1290,7 +1175,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Monthly Salary (₹)</label>
               <input
@@ -1302,7 +1186,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -1320,8 +1203,6 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 6: EDIT TRAINER */}
       <Modal isOpen={isEditTrainerOpen} onClose={() => setIsEditTrainerOpen(false)} title={`Edit Trainer: ${selectedTrainer?.name}`}>
         <form onSubmit={handleUpdateTrainer} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1335,7 +1216,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Username</label>
               <input
@@ -1347,7 +1227,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">New Password (optional)</label>
@@ -1359,7 +1238,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
               <input
@@ -1371,7 +1249,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Specialization</label>
@@ -1382,7 +1259,6 @@ export default function AdminDashboard() {
                 className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
               />
             </div>
-
             <div>
               <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Monthly Salary (₹)</label>
               <input
@@ -1394,7 +1270,6 @@ export default function AdminDashboard() {
               />
             </div>
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -1412,8 +1287,6 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 7: PAY SALARY */}
       <Modal isOpen={isPaySalaryOpen} onClose={() => setIsPaySalaryOpen(false)} title={`Pay Salary to ${selectedTrainer?.name}`}>
         <form onSubmit={handlePaySalary} className="space-y-4 text-xs">
           <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 flex justify-between items-center">
@@ -1426,7 +1299,6 @@ export default function AdminDashboard() {
               <h4 className="text-xl font-black text-yellow-400">₹{selectedTrainer?.salary}</h4>
             </div>
           </div>
-
           <div>
             <label className="block font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Salary Payment Amount (₹) *</label>
             <input
@@ -1439,7 +1311,6 @@ export default function AdminDashboard() {
               className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-base font-bold"
             />
           </div>
-
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
@@ -1457,11 +1328,8 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
-
-      {/* MODAL 8: ATTENDANCE DETAILS & MARKING */}
       <Modal isOpen={isAttendanceDetailOpen} onClose={() => setIsAttendanceDetailOpen(false)} title={`Attendance History: ${attendanceData.user?.name}`}>
         <div className="space-y-6 text-xs">
-          {/* Quick Mark Attendance Form */}
           <form onSubmit={handleMarkAttendance} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
             <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider">Mark or Modify Attendance Record</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
@@ -1475,7 +1343,6 @@ export default function AdminDashboard() {
                   className="w-full p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
                 />
               </div>
-
               <div>
                 <label className="block font-semibold text-slate-400 mb-1">Status</label>
                 <select
@@ -1487,7 +1354,6 @@ export default function AdminDashboard() {
                   <option value="absent">Absent (Missed)</option>
                 </select>
               </div>
-
               <button
                 type="submit"
                 className="w-full py-2.5 px-4 rounded-lg bg-yellow-400 text-black font-extrabold uppercase hover:bg-yellow-300 transition"
@@ -1496,8 +1362,6 @@ export default function AdminDashboard() {
               </button>
             </div>
           </form>
-
-          {/* Past Records Table */}
           <div>
             <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Past 30 Days Records</h4>
             {attendanceData.records.length === 0 ? (

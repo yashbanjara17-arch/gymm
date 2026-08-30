@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-
 const customerSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -69,10 +68,8 @@ const customerSchema = new mongoose.Schema({
     default: ''
   }
 }, { timestamps: true });
-
 customerSchema.methods.matchPassword = async function (enteredPassword) {
   if (this.password === enteredPassword) return true;
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
 export default mongoose.model('Customer', customerSchema);

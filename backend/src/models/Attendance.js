@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 const attendanceSchema = new mongoose.Schema({
   userType: {
     type: String,
@@ -17,7 +16,7 @@ const attendanceSchema = new mongoose.Schema({
     default: null
   },
   attendance_date: {
-    type: String, // format YYYY-MM-DD
+    type: String, 
     required: true
   },
   status: {
@@ -26,9 +25,6 @@ const attendanceSchema = new mongoose.Schema({
     default: 'present'
   }
 }, { timestamps: true });
-
-// Ensure unique attendance per user per date
 attendanceSchema.index({ customerId: 1, attendance_date: 1 }, { unique: true, sparse: true });
 attendanceSchema.index({ trainerId: 1, attendance_date: 1 }, { unique: true, sparse: true });
-
 export default mongoose.model('Attendance', attendanceSchema);

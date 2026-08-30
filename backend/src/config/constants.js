@@ -4,7 +4,6 @@ export const MEMBERSHIP_PRICES = {
   "Half-Yearly": 4500,
   Yearly: 8000
 };
-
 export const DIET_PLANS = [
   "None",
   "Standard",
