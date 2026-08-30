@@ -1,23 +1,5 @@
 # fitS GYM - Master Full-Stack MERN Documentation
 
-A Gym and Fitness Club Management Web Application built with **React.js (Vite + Tailwind CSS)**, **Express.js**, and **MongoDB (Mongoose ODM)**.
-
----
-
-## 📑 Table of Contents
-1. [Quick Start & Run Commands](#1-quick-start--run-commands)
-2. [How to Generate a Secure JWT Secret](#2-how-to-generate-a-secure-jwt-secret)
-3. [Environment Configuration](#3-environment-configuration)
-4. [Technology Stack & Libraries](#4-technology-stack--libraries)
-5. [Complete File & Folder Structure](#5-complete-file--folder-structure)
-6. [System Flow & Architecture Diagram](#6-system-flow--architecture-diagram)
-7. [Database Schema & Models Design](#7-database-schema--models-design)
-8. [Complete REST API Reference](#8-complete-rest-api-reference)
-9. [Zero-Setup Cloning & Auto Admin Seeding](#9-zero-setup-cloning--auto-admin-seeding)
-10. [Viva / Technical Interview Questions & Answers](#10-viva--technical-interview-questions--answers)
-
----
-
 ## 1. Quick Start & Run Commands
 
 ### Method A: From Root Directory (Recommended)
@@ -27,14 +9,6 @@ Open your terminal in `d:/dbms`:
 ```bash
 # 1. Install all dependencies (first time only):
 npm run install:all
-
-# 2. Run Express.js Backend (Terminal 1):
-npm run backend
-# API Server: http://127.0.0.1:5000
-
-# 3. Run React.js Frontend (Terminal 2):
-npm run frontend
-# Web Application: http://localhost:5173
 ```
 
 ---
@@ -57,54 +31,16 @@ npm run dev
 
 ---
 
-### 🛠️ Useful Management & Utility Commands
 
-| Command | Location | Description |
-|---|---|---|
-| `node reset-db.js` | `backend/` | Clears all data & creates fresh default admin (`admin` / `admin`) |
-| `node test-api.js` | `backend/` | Runs automated end-to-end test suite on all REST APIs |
-| `npm run build` | `frontend/` | Builds optimized production bundle |
-| `npm run preview` | `frontend/` | Previews the production build locally |
-
----
 
 ## 2. How to Generate a Secure JWT Secret
 
 Run any of the following commands in your terminal to generate a cryptographically secure 64-byte JWT secret:
 
-### Option A: Using Node.js (Quickest)
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-
-### Option B: Using PowerShell (Windows)
-```powershell
--join ((65..90) + (97..122) + (48..57) | Get-Random -Count 64 | ForEach-Object {[char]$_})
-```
-
 ### Option C: Using OpenSSL (Git Bash / Linux / macOS)
 ```bash
 openssl rand -hex 64
 ```
-
----
-
-## 3. Environment Configuration
-
-Create or update `backend/.env` with your settings:
-
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_uri_here
-JWT_SECRET=paste_your_generated_64_byte_key_here
-NODE_ENV=development
-
-# Optional default admin credentials (defaults to admin/admin if omitted)
-DEFAULT_ADMIN_USERNAME=admin
-DEFAULT_ADMIN_PASSWORD=admin
-```
-
----
 
 ## 4. Technology Stack & Libraries
 
@@ -113,7 +49,6 @@ DEFAULT_ADMIN_PASSWORD=admin
 - **Vite (v6.0)**: Fast module bundler and dev server.
 - **Tailwind CSS (v3.4)**: Utility-first CSS framework supporting Dark/Light modes.
 - **React Router DOM (v6.28)**: Single Page Application routing and `<ProtectedRoute>` guards.
-- **Axios (v1.7)**: HTTP requests with automatic Bearer token injection and error interceptors.
 - **Lucide React**: Vector icons.
 - **Canvas Confetti**: Visual celebration animations on payment completions.
 
